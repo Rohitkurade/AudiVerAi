@@ -1,0 +1,48 @@
+<section class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> REVIEW & REMEDIATE</div>
+    <h1>Findings</h1>
+    <p class="page-subtitle">Track observations, assign a priority, and follow each item through review.</p>
+  </div>
+  <div class="finding-open-total"><strong>{{ demo.openFindingsCount() }}</strong><span>open findings</span></div>
+</section>
+
+<section class="finding-summary-grid">
+  <article class="finding-summary-card finding-summary-critical"><span class="summary-severity-dot"></span><span>Critical</span><strong>{{ countBySeverity('Critical') }}</strong></article>
+  <article class="finding-summary-card finding-summary-high"><span class="summary-severity-dot"></span><span>High</span><strong>{{ countBySeverity('High') }}</strong></article>
+  <article class="finding-summary-card finding-summary-medium"><span class="summary-severity-dot"></span><span>Medium</span><strong>{{ countBySeverity('Medium') }}</strong></article>
+  <article class="finding-summary-card finding-summary-resolved"><span class="summary-severity-dot"></span><span>Resolved</span><strong>{{ countResolved() }}</strong></article>
+</section>
+
+<section class="surface-card table-card">
+  <div class="table-toolbar">
+    <div class="table-title"><div><h2>All findings <span class="title-count">{{ filteredFindings().length }}</span></h2><p>Sample findings require auditor review before action</p></div></div>
+    <div class="table-controls">
+      <label class="search-box"><span>⌕</span><input type="search" placeholder="Search findings..." [ngModel]="search()" (ngModelChange)="search.set($event)" aria-label="Search findings"></label>
+      <select class="select-control" aria-label="Filter by severity" [ngModel]="severityFilter()" (ngModelChange)="severityFilter.set($event)">@for (severity of severities; track severity) { <option [value]="severity">{{ severity }}</option> }</select>
+      <select class="select-control" aria-label="Filter by finding status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">@for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }</select>
+    </div>
+  </div>
+  <div class="findings-list">
+    @for (finding of filteredFindings(); track finding.id) {
+      <article class="finding-row">
+        <div [class]="'finding-priority-line ' + severityClass(finding.severity)"></div>
+        <div class="finding-main">
+          <div class="finding-title-line"><span class="finding-id">{{ finding.id }}</span><span [class]="'severity-badge ' + severityClass(finding.severity)">{{ finding.severity }}</span><span [class]="'finding-status-badge ' + statusClass(finding.status)">{{ finding.status }}</span></div>
+          <h3>{{ finding.title }}</h3>
+          <p>{{ finding.description }}</p>
+          <div class="finding-metadata"><a routerLink="/audits" [queryParams]="{ audit: finding.auditId }">{{ auditFor(finding.auditId)?.name ?? finding.auditId }}</a><span>·</span><span>{{ finding.createdAt }}</span><span>·</span><span>{{ finding.evidenceIds.length }} evidence {{ finding.evidenceIds.length === 1 ? 'record' : 'records' }}</span></div>
+          <div class="finding-evidence">@for (evidenceId of finding.evidenceIds; track evidenceId) { <a routerLink="/evidence" class="reference-chip">▧ {{ evidenceId }}</a> }</div>
+        </div>
+        <label class="finding-action-label">Update status
+          <select class="select-control finding-status-select" [ngModel]="finding.status" [name]="'finding-status-' + finding.id" (ngModelChange)="changeStatus(finding.id, $event)">
+            @for (status of statuses.slice(1); track status) { <option [value]="status">{{ status }}</option> }
+          </select>
+        </label>
+      </article>
+    } @empty {
+      <div class="empty-state">No findings match these filters. Try changing the severity or status.</div>
+    }
+  </div>
+  <div class="table-footer"><span>{{ filteredFindings().length }} sample findings</span><span class="sample-disclaimer">Demo statuses are editable · no backend changes</span></div>
+</section>

@@ -1,0 +1,93 @@
+<section class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> ASSURANCE WORKSPACE</div>
+    <h1>Audit management</h1>
+    <p class="page-subtitle">Plan engagements, track progress, and keep every review moving.</p>
+  </div>
+  <button class="button button-primary" (click)="createOpen.set(true)"><span class="button-plus">＋</span> Create audit</button>
+</section>
+
+<section class="surface-card table-card">
+  <div class="table-toolbar">
+    <div class="table-title"><div><h2>All audits <span class="title-count">{{ filteredAudits().length }}</span></h2><p>Sample audit records for this interactive prototype</p></div></div>
+    <div class="table-controls">
+      <label class="search-box"><span>⌕</span><input type="search" placeholder="Search audits..." [ngModel]="search()" (ngModelChange)="search.set($event)" aria-label="Search audits"></label>
+      <select class="select-control" aria-label="Filter by status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        @for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }
+      </select>
+    </div>
+  </div>
+
+  <div class="table-scroll">
+    <table class="data-table audits-table">
+      <thead><tr><th>ENGAGEMENT</th><th>TYPE</th><th>PERIOD</th><th>OWNER</th><th>STATUS</th><th>PROGRESS</th><th>UPDATED</th><th></th></tr></thead>
+      <tbody>
+        @for (audit of filteredAudits(); track audit.id) {
+          <tr>
+            <td><button class="table-primary-link" (click)="selectedId.set(audit.id)">{{ audit.name }}</button><span class="table-secondary">{{ audit.id }} <span class="middot">·</span> {{ audit.client }}</span></td>
+            <td><span class="type-label">{{ audit.type }}</span></td>
+            <td class="muted-cell">{{ audit.period }}</td>
+            <td><span class="owner-cell"><span class="owner-avatar">{{ audit.owner.slice(0, 1) }}</span>{{ audit.owner }}</span></td>
+            <td><span [class]="'status-badge ' + statusClass(audit.status)">{{ audit.status }}</span></td>
+            <td><div class="table-progress"><div class="progress-track"><span [style.width.%]="audit.progress"></span></div><span>{{ audit.progress }}%</span></div></td>
+            <td class="muted-cell">{{ audit.updatedAt }}</td>
+            <td><button class="row-action" aria-label="View audit details" (click)="selectedId.set(audit.id)">···</button></td>
+          </tr>
+        } @empty {
+          <tr><td class="table-empty" colspan="8">No audits match your search. Try another term or status.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer"><span>Showing {{ filteredAudits().length }} of {{ demo.audits().length }} sample audits</span><span class="sample-disclaimer">Demo records · not connected to the database</span></div>
+</section>
+
+@if (createOpen()) {
+  <div class="modal-backdrop" (click)="closeDialogs()">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="create-audit-title" (click)="$event.stopPropagation()">
+      <div class="modal-heading"><div><span class="modal-kicker">NEW ENGAGEMENT</span><h2 id="create-audit-title">Create an audit</h2><p>Set up a sample audit in your local demo workspace.</p></div><button class="modal-close" aria-label="Close dialog" (click)="closeDialogs()">×</button></div>
+      <form #auditForm="ngForm" (ngSubmit)="createAudit(auditForm)" novalidate>
+        <label class="form-field">Audit name
+          <input name="name" [(ngModel)]="auditDraft.name" required minlength="3" maxlength="80" #nameControl="ngModel" placeholder="e.g. Q1 Access Controls Review">
+          @if (nameControl.invalid && nameControl.touched) { <small class="field-error">Enter an audit name (at least 3 characters).</small> }
+        </label>
+        <label class="form-field">Client / organization
+          <input name="client" [(ngModel)]="auditDraft.client" required minlength="2" maxlength="80" #clientControl="ngModel" placeholder="e.g. Northstar Health Group">
+          @if (clientControl.invalid && clientControl.touched) { <small class="field-error">Enter a client name.</small> }
+        </label>
+        <div class="form-row">
+          <label class="form-field">Audit type
+            <select name="type" [(ngModel)]="auditDraft.type" required>
+              @for (type of auditTypes; track type) { <option [value]="type">{{ type }}</option> }
+            </select>
+          </label>
+          <label class="form-field">Audit period
+            <input name="period" [(ngModel)]="auditDraft.period" required maxlength="40" #periodControl="ngModel" placeholder="e.g. Jan – Mar 2026">
+            @if (periodControl.invalid && periodControl.touched) { <small class="field-error">Enter the audit period.</small> }
+          </label>
+        </div>
+        <label class="form-field">Audit owner
+          <input name="owner" [(ngModel)]="auditDraft.owner" required maxlength="60" #ownerControl="ngModel">
+        </label>
+        <div class="modal-actions"><button type="button" class="button button-secondary" (click)="closeDialogs()">Cancel</button><button type="submit" class="button button-primary">Create sample audit</button></div>
+      </form>
+      <div class="modal-note"><span>i</span> This creates a browser-only demo record. No database rows are changed.</div>
+    </section>
+  </div>
+}
+
+@if (selectedAudit(); as audit) {
+  <div class="modal-backdrop" (click)="closeDialogs()">
+    <section class="modal-card detail-modal" role="dialog" aria-modal="true" aria-labelledby="audit-detail-title" (click)="$event.stopPropagation()">
+      <div class="modal-heading"><div><span class="modal-kicker">{{ audit.id }}</span><h2 id="audit-detail-title">{{ audit.name }}</h2><p>{{ audit.client }} <span class="middot">·</span> {{ audit.type }}</p></div><button class="modal-close" aria-label="Close dialog" (click)="closeDialogs()">×</button></div>
+      <div class="detail-grid">
+        <div><span>Audit period</span><strong>{{ audit.period }}</strong></div>
+        <div><span>Owner</span><strong>{{ audit.owner }}</strong></div>
+        <div><span>Progress</span><strong>{{ audit.progress }}% complete</strong></div>
+        <div><span>Last updated</span><strong>{{ audit.updatedAt }}</strong></div>
+      </div>
+      <div class="detail-status-control"><label for="audit-status-detail">Demonstration status</label><select id="audit-status-detail" class="select-control" [ngModel]="audit.status" (ngModelChange)="setStatus($event)">@for (status of statuses.slice(1); track status) { <option [value]="status">{{ status }}</option> }</select></div>
+      <div class="modal-note"><span>i</span> Status updates are saved only in your browser’s demo workspace.</div>
+    </section>
+  </div>
+}

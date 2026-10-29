@@ -1,0 +1,106 @@
+<section class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR AUDIT WORKSPACE</div>
+    <h1>Good morning, Alex <span class="wave">✦</span></h1>
+    <p class="page-subtitle">Here’s what’s happening across your audit workspace.</p>
+  </div>
+  <a class="button button-primary" routerLink="/audits" [queryParams]="{ create: true }"><span class="button-plus">＋</span> Create new audit</a>
+</section>
+
+<section class="metric-grid" aria-label="Audit overview">
+  <article class="metric-card">
+    <div class="metric-top"><span class="metric-label">Active audits</span><span class="metric-icon metric-teal">▤</span></div>
+    <div class="metric-value">{{ demo.activeAuditsCount() }}<span class="metric-suffix"> audits</span></div>
+    <div class="metric-foot"><span class="metric-positive">● {{ completedAudits() }} completed</span><span>of {{ demo.audits().length }} total</span></div>
+  </article>
+  <article class="metric-card">
+    <div class="metric-top"><span class="metric-label">Open findings</span><span class="metric-icon metric-amber">◇</span></div>
+    <div class="metric-value">{{ demo.openFindingsCount() }}<span class="metric-suffix"> findings</span></div>
+    <div class="metric-foot"><span class="metric-alert">{{ highFindings() }} high priority</span><a routerLink="/findings">View all →</a></div>
+  </article>
+  <article class="metric-card">
+    <div class="metric-top"><span class="metric-label">Avg. audit progress</span><span class="metric-icon metric-blue">↗</span></div>
+    <div class="metric-value">{{ demo.averageProgress() }}<span class="metric-suffix">%</span></div>
+    <div class="mini-progress"><span [style.width.%]="demo.averageProgress()"></span></div>
+    <div class="metric-foot"><span>Across active engagements</span><span class="metric-neutral">On track</span></div>
+  </article>
+  <article class="metric-card">
+    <div class="metric-top"><span class="metric-label">Evidence records</span><span class="metric-icon metric-purple">▧</span></div>
+    <div class="metric-value">{{ demo.evidence().length }}<span class="metric-suffix"> files</span></div>
+    <div class="metric-foot"><span>Linked to {{ demo.audits().length }} audits</span><a routerLink="/evidence">Browse evidence →</a></div>
+  </article>
+</section>
+
+<section class="status-summary surface-card" aria-label="Audit status summary">
+  <strong>Audit status</strong>
+  @for (item of statusSummary(); track item.status) {
+    <div class="status-summary-item"><span [class]="'status-dot ' + statusClass(item.status)"></span><span>{{ item.status }}</span><b>{{ item.count }}</b></div>
+  }
+</section>
+
+<section class="dashboard-grid">
+  <article class="surface-card audit-overview">
+    <div class="section-header">
+      <div><h2>Audit portfolio</h2><p>Your most recently updated engagements</p></div>
+      <a class="text-link" routerLink="/audits">All audits <span>→</span></a>
+    </div>
+    <div class="portfolio-list">
+      @for (audit of demo.audits().slice(0, 4); track audit.id) {
+        <a class="portfolio-row" routerLink="/audits" [queryParams]="{ audit: audit.id }">
+          <div [class]="'portfolio-avatar ' + (audit.type === 'Financial' ? 'portfolio-avatar-green' : audit.type === 'Compliance' ? 'portfolio-avatar-purple' : 'portfolio-avatar-blue')">{{ audit.client.slice(0, 1) }}</div>
+          <div class="portfolio-main">
+            <div class="portfolio-name">{{ audit.name }} <span>{{ audit.id }}</span></div>
+            <div class="portfolio-client">{{ audit.client }}</div>
+          </div>
+          <div class="portfolio-progress">
+            <div class="progress-label"><span>{{ audit.progress }}% complete</span><span>{{ audit.updatedAt }}</span></div>
+            <div class="progress-track"><span [style.width.%]="audit.progress"></span></div>
+          </div>
+          <span [class]="'status-badge ' + statusClass(audit.status)">{{ audit.status }}</span>
+          <span class="row-arrow">›</span>
+        </a>
+      } @empty {
+        <div class="empty-state">No audits yet. Create your first demo audit to get started.</div>
+      }
+    </div>
+  </article>
+
+  <article class="surface-card activity-card">
+    <div class="section-header">
+      <div><h2>Recent activity</h2><p>Latest updates in your workspace</p></div>
+      <span class="live-dot" aria-label="Live demo activity"></span>
+    </div>
+    <div class="activity-list">
+      @for (activity of demo.activities().slice(0, 5); track activity.id) {
+        <div class="activity-row">
+          <span class="activity-marker" [class]="activityClass(activity.kind)">{{ activity.kind === 'evidence' ? '▧' : activity.kind === 'finding' ? '◇' : activity.kind === 'copilot' ? '✳' : '▤' }}</span>
+          <div class="activity-copy"><strong>{{ activity.title }}</strong><span>{{ activity.detail }}</span></div>
+          <time>{{ activity.time }}</time>
+        </div>
+      } @empty {
+        <div class="empty-state">Updates from your demo actions will appear here.</div>
+      }
+    </div>
+    <div class="activity-footer"><span class="activity-indicator"></span> Your workspace is up to date</div>
+  </article>
+</section>
+
+<section class="bottom-grid">
+  <article class="surface-card quick-actions">
+    <div class="section-header"><div><h2>Quick actions</h2><p>Keep your audit moving</p></div></div>
+    <div class="quick-action-list">
+      <a routerLink="/audits" [queryParams]="{ create: true }"><span class="quick-icon quick-icon-green">＋</span><span><strong>Start an audit</strong><small>Set up a new engagement</small></span><b>→</b></a>
+      <a routerLink="/evidence"><span class="quick-icon quick-icon-blue">▧</span><span><strong>Review evidence</strong><small>{{ demo.evidence().length }} sample records to explore</small></span><b>→</b></a>
+      <a routerLink="/copilot"><span class="quick-icon quick-icon-violet">✳</span><span><strong>Ask AI Copilot</strong><small>Explore simulated suggestions</small></span><b>→</b></a>
+    </div>
+  </article>
+  <article class="copilot-banner">
+    <div class="copilot-banner-content">
+      <div class="copilot-kicker"><span>✳</span> AUDIVERAI COPILOT <span class="simulated-tag">SIMULATED</span></div>
+      <h2>More clarity.<br>Less busywork.</h2>
+      <p>Explore example audit suggestions grounded in sample evidence. You stay in control of every decision.</p>
+      <a routerLink="/copilot">Explore the Copilot <span>→</span></a>
+    </div>
+    <div class="copilot-orbit" aria-hidden="true"><span>✳</span><i></i><b></b></div>
+  </article>
+</section>

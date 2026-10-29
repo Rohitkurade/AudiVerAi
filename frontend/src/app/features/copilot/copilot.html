@@ -1,0 +1,63 @@
+<section class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> ASSISTED AUDIT WORKFLOW</div>
+    <h1>AI Copilot</h1>
+    <p class="page-subtitle">A guided look at how an audit assistant could surface work for human review.</p>
+  </div>
+  <span class="simulated-page-pill"><span>✳</span> SIMULATED DEMO</span>
+</section>
+
+<section class="copilot-disclaimer">
+  <span class="disclaimer-icon">i</span>
+  <div><strong>These are simulated suggestions, not AI-generated audit conclusions.</strong><p>Responses are prewritten examples referencing fictional sample records. Citations are links to demo records only and are not independently verified. An auditor must validate every observation.</p></div>
+</section>
+
+<section class="copilot-layout">
+  <div class="suggestion-column">
+    <div class="suggestions-heading"><div><span class="eyebrow">SAMPLE WORKFLOW</span><h2>Suggestions for review</h2></div><span class="suggestion-count">{{ demo.suggestions().length }} examples</span></div>
+    @for (suggestion of demo.suggestions(); track suggestion.id) {
+      <article class="suggestion-card">
+        <div class="suggestion-card-top"><div class="suggestion-icon">✳</div><div class="suggestion-context"><span>{{ auditName(suggestion.auditId) }}</span><span class="suggestion-id">{{ suggestion.id }}</span></div><span [class]="'severity-badge ' + severityClass(suggestion.severity)">{{ suggestion.severity }}</span></div>
+        <h3>{{ suggestion.title }}</h3>
+        <p class="suggestion-description">{{ suggestion.description }}</p>
+        <div class="suggestion-evidence-label">SAMPLE EVIDENCE REFERENCES</div>
+        <div class="suggestion-evidence">@for (evidenceId of suggestion.evidenceIds; track evidenceId) {
+          <a class="evidence-reference" routerLink="/evidence"><span>▧</span>{{ demo.evidenceFor(evidenceId)?.filename ?? evidenceId }}<small>{{ evidenceId }}</small></a>
+        }</div>
+
+        @if (expandedId() === suggestion.id) {
+          <div class="simulated-response"><div class="response-label"><span>✳</span> SIMULATED COPILOT RESPONSE</div><p>{{ suggestion.response }}</p><small>This text is static demonstration content. It was not generated from a provider or verified against source files.</small></div>
+        }
+
+        <div class="suggestion-actions">
+          <span class="suggestion-status" [class]="suggestion.status === 'Accepted' ? 'suggestion-accepted' : suggestion.status === 'Rejected' ? 'suggestion-rejected' : ''"><span></span>{{ suggestion.status }}</span>
+          <div>
+            <button class="button button-review" (click)="toggleReview(suggestion)">{{ expandedId() === suggestion.id ? 'Hide response' : 'Review suggestion' }}</button>
+            @if (suggestion.status === 'Ready for review') {
+              <button class="button button-reject" (click)="respond(suggestion.id, 'Rejected')">Reject</button>
+              <button class="button button-accept" (click)="respond(suggestion.id, 'Accepted')">Accept</button>
+            }
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="surface-card empty-state copilot-empty">No demo suggestions are available.</div>
+    }
+  </div>
+
+  <aside class="copilot-sidebar">
+    <article class="copilot-side-card">
+      <span class="side-card-icon">◎</span><h3>Human in the loop</h3>
+      <p>Suggestions never become audit findings without your review. Accepting one adds a draft finding you can update on the Findings screen.</p>
+    </article>
+    <article class="copilot-side-card">
+      <span class="side-card-icon side-card-icon-blue">▧</span><h3>Sample-only references</h3>
+      <p>Evidence links open fictional records in this prototype. No documents are analyzed, uploaded, or cited as verified source material.</p>
+    </article>
+    <article class="copilot-side-card copilot-roadmap">
+      <span class="eyebrow">FUTURE CAPABILITY</span><h3>Provider-neutral AI gateway</h3>
+      <p>Production AI will be mediated by the backend, with provider adapters, access controls, traceable prompts, and auditor approval.</p>
+      <span class="roadmap-status"><i></i> Not implemented</span>
+    </article>
+  </aside>
+</section>

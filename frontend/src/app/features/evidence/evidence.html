@@ -1,0 +1,52 @@
+<section class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> AUDIT WORKPAPERS</div>
+    <h1>Evidence library</h1>
+    <p class="page-subtitle">Browse sample evidence records and see how they connect to audits and findings.</p>
+  </div>
+  <div class="sample-only-pill"><span>i</span> Sample records only</div>
+</section>
+
+<section class="evidence-summary">
+  <div class="evidence-stat"><span class="metric-icon metric-purple">▧</span><div><strong>{{ demo.evidence().length }}</strong><small>Sample records</small></div></div>
+  <div class="evidence-stat"><span class="metric-icon metric-teal">▤</span><div><strong>{{ demo.audits().length }}</strong><small>Linked audits</small></div></div>
+  <div class="evidence-stat"><span class="metric-icon metric-amber">◇</span><div><strong>{{ linkedFindingCount() }}</strong><small>Finding references</small></div></div>
+  <div class="evidence-summary-note"><strong>Uploads aren’t enabled in this prototype.</strong><span>Files shown here are fictional records; no files have been uploaded or stored.</span></div>
+</section>
+
+<section class="surface-card table-card">
+  <div class="table-toolbar">
+    <div class="table-title"><div><h2>Evidence records <span class="title-count">{{ filteredEvidence().length }}</span></h2><p>Example filenames, types, audit links, and finding references</p></div></div>
+    <div class="table-controls">
+      <label class="search-box"><span>⌕</span><input type="search" placeholder="Search evidence..." [ngModel]="search()" (ngModelChange)="search.set($event)" aria-label="Search evidence"></label>
+      <select class="select-control" aria-label="Filter evidence by audit" [ngModel]="auditFilter()" (ngModelChange)="auditFilter.set($event)">
+        <option>All audits</option>
+        @for (audit of demo.audits(); track audit.id) { <option [value]="audit.id">{{ audit.name }}</option> }
+      </select>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table evidence-table">
+      <thead><tr><th>RECORD</th><th>TYPE</th><th>LINKED AUDIT</th><th>FINDING REFERENCES</th><th>ADDED</th><th>SIZE</th></tr></thead>
+      <tbody>
+        @for (item of filteredEvidence(); track item.id) {
+          <tr>
+            <td><div class="file-cell"><span [class]="'file-icon ' + fileClass(item.type)">{{ item.type === 'Spreadsheet' || item.type === 'CSV' ? '▦' : item.type === 'PDF' ? 'PDF' : 'W' }}</span><div><strong>{{ item.filename }}</strong><span>{{ item.id }} <span class="sample-tag">SAMPLE</span></span></div></div></td>
+            <td><span class="type-label">{{ item.type }}</span></td>
+            <td><a class="table-primary-link evidence-audit-link" routerLink="/audits" [queryParams]="{ audit: item.auditId }">{{ auditFor(item.auditId)?.name ?? 'Unknown audit' }}</a><span class="table-secondary">{{ auditFor(item.auditId)?.client }}</span></td>
+            <td>
+              @if (item.findingIds.length) {
+                <div class="reference-list">@for (findingId of item.findingIds; track findingId) { <a class="reference-chip" routerLink="/findings">{{ findingId }}</a> }</div>
+              } @else { <span class="muted-cell">No linked findings</span> }
+            </td>
+            <td class="muted-cell">{{ item.uploadedAt }}</td>
+            <td class="muted-cell">{{ item.size }}</td>
+          </tr>
+        } @empty {
+          <tr><td class="table-empty" colspan="6">No sample records match those filters.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer"><span>Showing {{ filteredEvidence().length }} sample records</span><span class="sample-disclaimer">No upload or secure file storage is implemented</span></div>
+</section>

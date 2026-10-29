@@ -1,0 +1,71 @@
+<div class="app-shell">
+  <aside class="sidebar" [class.sidebar-open]="menuOpen()">
+    <a class="brand" routerLink="/dashboard" (click)="closeMenu()">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 36 36" fill="none"><path d="M18 3.5 31 11v14L18 32.5 5 25V11L18 3.5Z" stroke="currentColor" stroke-width="2"/><path d="m11 20 4.5-9 4.5 14 2.5-7H27" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-copy"><strong>AudiVerAI</strong><small>ASSURANCE PLATFORM</small></span>
+    </a>
+
+    <div class="workspace-label">WORKSPACE</div>
+    <nav class="primary-nav" aria-label="Main navigation">
+      <a routerLink="/dashboard" routerLinkActive="nav-active" (click)="closeMenu()">
+        <span class="nav-icon">⌂</span><span>Overview</span>
+      </a>
+      <a routerLink="/audits" routerLinkActive="nav-active" (click)="closeMenu()">
+        <span class="nav-icon">▤</span><span>Audits</span><span class="nav-count">{{ demo.audits().length }}</span>
+      </a>
+      <a routerLink="/evidence" routerLinkActive="nav-active" (click)="closeMenu()">
+        <span class="nav-icon">▧</span><span>Evidence</span>
+      </a>
+      <a routerLink="/findings" routerLinkActive="nav-active" (click)="closeMenu()">
+        <span class="nav-icon">◇</span><span>Findings</span><span class="nav-count nav-count-warm">{{ demo.openFindingsCount() }}</span>
+      </a>
+    </nav>
+
+    <div class="workspace-label tools-label">INTELLIGENCE</div>
+    <nav class="primary-nav" aria-label="Intelligence navigation">
+      <a routerLink="/copilot" routerLinkActive="nav-active" (click)="closeMenu()">
+        <span class="nav-icon">✳</span><span>AI Copilot</span><span class="beta-tag">DEMO</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-note">
+      <span class="note-icon">i</span>
+      <p><strong>Prototype workspace</strong><br>Sample data only. Changes stay in this browser.</p>
+    </div>
+    <div class="profile">
+      <div class="avatar">AM</div>
+      <div class="profile-copy"><strong>Alex Morgan</strong><small>Audit manager</small></div>
+      <span class="profile-more">···</span>
+    </div>
+  </aside>
+
+  @if (menuOpen()) {
+    <button class="mobile-scrim" aria-label="Close navigation" (click)="closeMenu()"></button>
+  }
+
+  <div class="main-column">
+    <header class="topbar">
+      <button class="mobile-menu" aria-label="Open navigation" (click)="menuOpen.set(!menuOpen())">☰</button>
+      <div class="breadcrumb"><span>Workspace</span><span class="crumb-divider">/</span><strong>AudiVerAI</strong></div>
+      <div class="topbar-right">
+        <span class="environment-pill"><span></span> DEMO ENVIRONMENT</span>
+        <button class="icon-button notification-button" aria-label="Notifications">♧<i></i></button>
+        <div class="topbar-avatar">AM</div>
+      </div>
+    </header>
+    <main class="page-content">
+      <router-outlet />
+    </main>
+    <footer class="app-footer"><span>AudiVerAI · Audit automation, with human oversight.</span><span>Prototype v0.1 <b>·</b> Data stored locally</span></footer>
+  </div>
+
+  @if (demo.notice()) {
+    <div class="toast" role="status">
+      <span>{{ demo.notice() }}</span>
+      <button aria-label="Dismiss notification" (click)="demo.clearNotice()">×</button>
+    </div>
+  }
+</div>
