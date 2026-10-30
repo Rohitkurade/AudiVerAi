@@ -16,6 +16,8 @@ Angular 22 is the target frontend. The environment used for this prototype is No
    - Create a separately reviewed NestJS application when the team approves the migration.
    - Add configuration validation, health/readiness endpoints, request validation, structured logging, and database connection management.
    - Retain Express until equivalent API behavior and operational checks pass.
+
+   The initial foundation is implemented under `backend/src/nest` and runs independently from Express on port 3001 by default. It currently provides liveness and MySQL readiness checks; domain APIs and production cutover remain future work.
 3. **Domain APIs**
    - Implement audit, finding, and evidence-metadata modules using the draft [API contract](./api-contract.md).
    - Add integration tests against an isolated MySQL 8.4 test database and API contract tests.

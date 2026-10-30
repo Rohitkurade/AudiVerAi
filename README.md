@@ -60,6 +60,8 @@ npm run dev
 
 The existing API is available at `http://localhost:3000`; health checks are `/health` and `/health/db`. The Angular demo currently does not call either endpoint or use database records.
 
+The NestJS backend is being introduced alongside Express so the existing API remains available during migration. From `backend`, run `npm ci`, then `npm run dev:nest`; NestJS listens on `http://localhost:3001` by default, with liveness at `/health` and database readiness at `/health/ready`. Set `NEST_PORT` to change its port. The NestJS service uses the same database environment variables as Express. Do not switch clients or deployments to NestJS until the API contract and migration checks are complete.
+
 ## Local demo data
 
 Create, status, finding, and Copilot review actions update the browser-only demo workspace. Data persists across reloads in the same browser profile. To restore the original sample records, remove the `audiverai-demo-state-v1` entry from this site’s local storage in browser developer tools. This does not affect MySQL.
