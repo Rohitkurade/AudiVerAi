@@ -34,7 +34,7 @@
           <div class="finding-metadata"><a routerLink="/audits" [queryParams]="{ audit: finding.auditId }">{{ auditFor(finding.auditId)?.name ?? finding.auditId }}</a><span>·</span><span>{{ finding.createdAt }}</span><span>·</span><span>{{ finding.evidenceIds.length }} evidence {{ finding.evidenceIds.length === 1 ? 'record' : 'records' }}</span></div>
           <div class="finding-evidence">@for (evidenceId of finding.evidenceIds; track evidenceId) { <a routerLink="/evidence" class="reference-chip">▧ {{ evidenceId }}</a> }</div>
         </div>
-        <label class="finding-action-label">Update status
+        <label *appHasPermission="permissions.FINDINGS_MANAGE" class="finding-action-label">Update status
           <select class="select-control finding-status-select" [ngModel]="finding.status" [name]="'finding-status-' + finding.id" (ngModelChange)="changeStatus(finding.id, $event)">
             @for (status of statuses.slice(1); track status) { <option [value]="status">{{ status }}</option> }
           </select>

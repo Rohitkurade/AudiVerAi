@@ -1,71 +1,107 @@
-<div class="app-shell">
-  <aside class="sidebar" [class.sidebar-open]="menuOpen()">
-    <a class="brand" routerLink="/dashboard" (click)="closeMenu()">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 36 36" fill="none"><path d="M18 3.5 31 11v14L18 32.5 5 25V11L18 3.5Z" stroke="currentColor" stroke-width="2"/><path d="m11 20 4.5-9 4.5 14 2.5-7H27" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-      <span class="brand-copy"><strong>AudiVerAI</strong><small>ASSURANCE PLATFORM</small></span>
-    </a>
-
-    <div class="workspace-label">WORKSPACE</div>
-    <nav class="primary-nav" aria-label="Main navigation">
-      <a routerLink="/dashboard" routerLinkActive="nav-active" (click)="closeMenu()">
-        <span class="nav-icon">⌂</span><span>Overview</span>
+@if (auth.status() === 'loading') {
+  <main class="app-loading" role="status" aria-live="polite">
+    <span class="auth-brand-mark" aria-hidden="true">A</span>
+    <strong>AudiVerAI</strong>
+    <span>Restoring your secure session…</span>
+  </main>
+} @else if (standaloneRoute() || !auth.user()) {
+  <router-outlet />
+} @else {
+  <div class="app-shell">
+    <aside class="sidebar" [class.sidebar-open]="menuOpen()">
+      <a class="brand" routerLink="/dashboard" (click)="closeMenu()">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none"><path d="M18 3.5 31 11v14L18 32.5 5 25V11L18 3.5Z" stroke="currentColor" stroke-width="2"/><path d="m11 20 4.5-9 4.5 14 2.5-7H27" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-copy"><strong>AudiVerAI</strong><small>ASSURANCE PLATFORM</small></span>
       </a>
-      <a routerLink="/audits" routerLinkActive="nav-active" (click)="closeMenu()">
-        <span class="nav-icon">▤</span><span>Audits</span><span class="nav-count">{{ demo.audits().length }}</span>
-      </a>
-      <a routerLink="/evidence" routerLinkActive="nav-active" (click)="closeMenu()">
-        <span class="nav-icon">▧</span><span>Evidence</span>
-      </a>
-      <a routerLink="/findings" routerLinkActive="nav-active" (click)="closeMenu()">
-        <span class="nav-icon">◇</span><span>Findings</span><span class="nav-count nav-count-warm">{{ demo.openFindingsCount() }}</span>
-      </a>
-    </nav>
 
-    <div class="workspace-label tools-label">INTELLIGENCE</div>
-    <nav class="primary-nav" aria-label="Intelligence navigation">
-      <a routerLink="/copilot" routerLinkActive="nav-active" (click)="closeMenu()">
-        <span class="nav-icon">✳</span><span>AI Copilot</span><span class="beta-tag">DEMO</span>
-      </a>
-    </nav>
+      @for (group of navigationGroups; track group.label) {
+        @if (hasVisibleItems(group)) {
+          <div class="workspace-label" [class.tools-label]="group.label === 'INTELLIGENCE'">{{ group.label }}</div>
+          <nav class="primary-nav" [attr.aria-label]="group.label + ' navigation'">
+            @for (item of group.items; track item.route) {
+              @if (canAccess(item)) {
+                <a [routerLink]="item.route" routerLinkActive="nav-active" (click)="closeMenu()">
+                  <span class="nav-icon">{{ item.icon }}</span>
+                  <span>{{ item.label }}</span>
+                  @if (item.badge === 'audits') {
+                    <span class="nav-count">{{ demo.audits().length }}</span>
+                  } @else if (item.badge === 'findings') {
+                    <span class="nav-count nav-count-warm">{{ demo.openFindingsCount() }}</span>
+                  }
+                  @if (item.beta) { <span class="beta-tag">DEMO</span> }
+                </a>
+              }
+            }
+          </nav>
+        }
+      }
 
-    <div class="sidebar-spacer"></div>
-    <div class="sidebar-note">
-      <span class="note-icon">i</span>
-      <p><strong>Prototype workspace</strong><br>Sample data only. Changes stay in this browser.</p>
-    </div>
-    <div class="profile">
-      <div class="avatar">AM</div>
-      <div class="profile-copy"><strong>Alex Morgan</strong><small>Audit manager</small></div>
-      <span class="profile-more">···</span>
-    </div>
-  </aside>
-
-  @if (menuOpen()) {
-    <button class="mobile-scrim" aria-label="Close navigation" (click)="closeMenu()"></button>
-  }
-
-  <div class="main-column">
-    <header class="topbar">
-      <button class="mobile-menu" aria-label="Open navigation" (click)="menuOpen.set(!menuOpen())">☰</button>
-      <div class="breadcrumb"><span>Workspace</span><span class="crumb-divider">/</span><strong>AudiVerAI</strong></div>
-      <div class="topbar-right">
-        <span class="environment-pill"><span></span> DEMO ENVIRONMENT</span>
-        <button class="icon-button notification-button" aria-label="Notifications">♧<i></i></button>
-        <div class="topbar-avatar">AM</div>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <span class="note-icon">i</span>
+        <p><strong>Prototype workspace</strong><br>Sample data only. Changes stay in this browser.</p>
       </div>
-    </header>
-    <main class="page-content">
-      <router-outlet />
-    </main>
-    <footer class="app-footer"><span>AudiVerAI · Audit automation, with human oversight.</span><span>Prototype v0.1 <b>·</b> Data stored locally</span></footer>
-  </div>
+      @if (auth.user(); as user) {
+        <div class="profile-menu">
+          <button
+            class="profile"
+            type="button"
+            [attr.aria-expanded]="profileOpen()"
+            aria-haspopup="menu"
+            (click)="profileOpen.update((open) => !open)">
+            <span class="avatar">{{ initials(user.fullName) }}</span>
+            <span class="profile-copy">
+              <strong>{{ user.fullName }}</strong>
+              <small>{{ user.roles.length ? displayRole(user.roles[0]) : 'Member' }}</small>
+            </span>
+            <span class="profile-more" aria-hidden="true">···</span>
+          </button>
+          @if (profileOpen()) {
+            <div class="profile-dropdown" role="menu">
+              <strong>{{ user.fullName }}</strong>
+              <span>{{ user.email }}</span>
+              @if (user.department) { <span>{{ user.department }}</span> }
+              @if (user.roles.length) {
+                <div class="profile-roles">
+                  @for (role of user.roles; track role) { <span>{{ displayRole(role) }}</span> }
+                </div>
+              }
+              <button type="button" role="menuitem" (click)="logout()">Sign out</button>
+            </div>
+          }
+        </div>
+      }
+    </aside>
 
-  @if (demo.notice()) {
-    <div class="toast" role="status">
-      <span>{{ demo.notice() }}</span>
-      <button aria-label="Dismiss notification" (click)="demo.clearNotice()">×</button>
+    @if (menuOpen()) {
+      <button class="mobile-scrim" aria-label="Close navigation" (click)="closeMenu()"></button>
+    }
+
+    <div class="main-column">
+      <header class="topbar">
+        <button class="mobile-menu" aria-label="Open navigation" (click)="menuOpen.set(!menuOpen())">☰</button>
+        <div class="breadcrumb"><span>Workspace</span><span class="crumb-divider">/</span><strong>AudiVerAI</strong></div>
+        <div class="topbar-right">
+          <span class="environment-pill"><span></span> SECURE WORKSPACE</span>
+          <button class="icon-button notification-button" aria-label="Notifications">♧<i></i></button>
+          @if (auth.user(); as user) {
+            <span class="topbar-avatar" [attr.aria-label]="user.fullName">{{ initials(user.fullName) }}</span>
+          }
+        </div>
+      </header>
+      <main class="page-content">
+        <router-outlet />
+      </main>
+      <footer class="app-footer"><span>AudiVerAI · Audit automation, with human oversight.</span><span>Prototype v0.1 <b>·</b> Sample data</span></footer>
     </div>
-  }
-</div>
+
+    @if (demo.notice()) {
+      <div class="toast" role="status">
+        <span>{{ demo.notice() }}</span>
+        <button aria-label="Dismiss notification" (click)="demo.clearNotice()">×</button>
+      </div>
+    }
+  </div>
+}

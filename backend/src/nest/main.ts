@@ -18,7 +18,11 @@ async function bootstrap(): Promise<void> {
   });
 
   app.enableShutdownHooks();
-  app.enableCors({ origin });
+  app.enableCors({
+    origin,
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

@@ -1,16 +1,21 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
+import { HasPermissionDirective } from '../../core/auth/has-permission.directive';
+import { PERMISSIONS } from '../../core/auth/auth.models';
 import { Audit, AuditStatus } from '../../core/demo-data.model';
 import { DemoDataService } from '../../core/demo-data.service';
 
 @Component({
   selector: 'app-audits-page',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, HasPermissionDirective],
   templateUrl: './audits.html'
 })
 export class AuditsPage {
+  readonly auth = inject(AuthService);
+  readonly permissions = PERMISSIONS;
   readonly demo = inject(DemoDataService);
   readonly search = signal('');
   readonly statusFilter = signal('All statuses');
@@ -22,13 +27,13 @@ export class AuditsPage {
   });
   readonly statuses: Array<AuditStatus | 'All statuses'> = ['All statuses', 'Planning', 'In progress', 'Under review', 'Completed'];
   readonly auditTypes = ['Financial', 'IT General Controls', 'Operational', 'Compliance'];
-  auditDraft = { name: '', client: '', type: 'Financial', period: '', owner: 'Alex Morgan' };
+  auditDraft = { name: '', client: '', type: 'Financial', period: '', owner: '' };
 
   constructor(route: ActivatedRoute) {
     const requestedAudit = route.snapshot.queryParamMap.get('audit');
     const shouldCreate = route.snapshot.queryParamMap.get('create') === 'true';
     if (requestedAudit) this.selectedId.set(requestedAudit);
-    if (shouldCreate) this.createOpen.set(true);
+    if (shouldCreate && this.auth.hasPermission(PERMISSIONS.AUDITS_CREATE)) this.createOpen.set(true);
   }
 
   filteredAudits(): Audit[] {
@@ -46,12 +51,13 @@ export class AuditsPage {
   }
 
   createAudit(form: NgForm): void {
+    if (!this.auth.hasPermission(PERMISSIONS.AUDITS_CREATE)) return;
     if (form.invalid) {
       form.control.markAllAsTouched();
       return;
     }
     this.demo.createAudit({ ...this.auditDraft });
-    this.auditDraft = { name: '', client: '', type: 'Financial', period: '', owner: 'Alex Morgan' };
+    this.auditDraft = { name: '', client: '', type: 'Financial', period: '', owner: this.auth.user()?.fullName ?? '' };
     form.resetForm(this.auditDraft);
     this.createOpen.set(false);
   }

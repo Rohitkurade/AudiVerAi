@@ -4,7 +4,7 @@
     <h1>Audit management</h1>
     <p class="page-subtitle">Plan engagements, track progress, and keep every review moving.</p>
   </div>
-  <button class="button button-primary" (click)="createOpen.set(true)"><span class="button-plus">＋</span> Create audit</button>
+  <button *appHasPermission="permissions.AUDITS_CREATE" class="button button-primary" (click)="createOpen.set(true)"><span class="button-plus">＋</span> Create audit</button>
 </section>
 
 <section class="surface-card table-card">
@@ -42,7 +42,7 @@
   <div class="table-footer"><span>Showing {{ filteredAudits().length }} of {{ demo.audits().length }} sample audits</span><span class="sample-disclaimer">Demo records · not connected to the database</span></div>
 </section>
 
-@if (createOpen()) {
+@if (createOpen() && auth.hasPermission(permissions.AUDITS_CREATE)) {
   <div class="modal-backdrop" (click)="closeDialogs()">
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="create-audit-title" (click)="$event.stopPropagation()">
       <div class="modal-heading"><div><span class="modal-kicker">NEW ENGAGEMENT</span><h2 id="create-audit-title">Create an audit</h2><p>Set up a sample audit in your local demo workspace.</p></div><button class="modal-close" aria-label="Close dialog" (click)="closeDialogs()">×</button></div>

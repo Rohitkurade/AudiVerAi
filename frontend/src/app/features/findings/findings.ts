@@ -1,16 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HasPermissionDirective } from '../../core/auth/has-permission.directive';
+import { PERMISSIONS } from '../../core/auth/auth.models';
 import { Audit, Finding, FindingSeverity, FindingStatus } from '../../core/demo-data.model';
 import { DemoDataService } from '../../core/demo-data.service';
 
 @Component({
   selector: 'app-findings-page',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, HasPermissionDirective],
   templateUrl: './findings.html'
 })
 export class FindingsPage {
+  readonly permissions = PERMISSIONS;
   readonly demo = inject(DemoDataService);
   readonly search = signal('');
   readonly severityFilter = signal('All severities');

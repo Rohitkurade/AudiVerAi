@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "test": "ng test --watch=false"
   },
   "dependencies": {
     "@angular/common": "^21.2.25",
@@ -21,6 +22,8 @@
     "@angular/build": "^21.2.25",
     "@angular/cli": "^21.2.25",
     "@angular/compiler-cli": "^21.2.25",
-    "typescript": "~5.9.3"
+    "jsdom": "^27.4.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.12"
   }
 }

@@ -1,15 +1,20 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
+import { HasPermissionDirective } from '../../core/auth/has-permission.directive';
+import { PERMISSIONS } from '../../core/auth/auth.models';
 import { DemoDataService } from '../../core/demo-data.service';
 import { Audit, AuditStatus } from '../../core/demo-data.model';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, HasPermissionDirective],
   templateUrl: './dashboard.html'
 })
 export class DashboardPage {
+  readonly auth = inject(AuthService);
+  readonly permissions = PERMISSIONS;
   readonly demo = inject(DemoDataService);
   readonly completedAudits = computed(() => this.demo.audits().filter((audit) => audit.status === 'Completed').length);
   readonly highFindings = computed(() => this.demo.findings().filter((finding) => finding.severity === 'High' && finding.status !== 'Resolved').length);

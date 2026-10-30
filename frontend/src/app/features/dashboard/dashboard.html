@@ -1,10 +1,10 @@
 <section class="page-heading">
   <div>
     <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR AUDIT WORKSPACE</div>
-    <h1>Good morning, Alex <span class="wave">✦</span></h1>
+    <h1>Welcome, {{ auth.user()?.fullName }} <span class="wave">✦</span></h1>
     <p class="page-subtitle">Here’s what’s happening across your audit workspace.</p>
   </div>
-  <a class="button button-primary" routerLink="/audits" [queryParams]="{ create: true }"><span class="button-plus">＋</span> Create new audit</a>
+  <a *appHasPermission="permissions.AUDITS_CREATE" class="button button-primary" routerLink="/audits" [queryParams]="{ create: true }"><span class="button-plus">＋</span> Create new audit</a>
 </section>
 
 <section class="metric-grid" aria-label="Audit overview">
@@ -16,7 +16,7 @@
   <article class="metric-card">
     <div class="metric-top"><span class="metric-label">Open findings</span><span class="metric-icon metric-amber">◇</span></div>
     <div class="metric-value">{{ demo.openFindingsCount() }}<span class="metric-suffix"> findings</span></div>
-    <div class="metric-foot"><span class="metric-alert">{{ highFindings() }} high priority</span><a routerLink="/findings">View all →</a></div>
+    <div class="metric-foot"><span class="metric-alert">{{ highFindings() }} high priority</span>    <a *appHasPermission="[permissions.FINDINGS_CREATE, permissions.FINDINGS_MANAGE, permissions.FINDINGS_RESPOND]" routerLink="/findings">View all →</a></div>
   </article>
   <article class="metric-card">
     <div class="metric-top"><span class="metric-label">Avg. audit progress</span><span class="metric-icon metric-blue">↗</span></div>
@@ -27,7 +27,7 @@
   <article class="metric-card">
     <div class="metric-top"><span class="metric-label">Evidence records</span><span class="metric-icon metric-purple">▧</span></div>
     <div class="metric-value">{{ demo.evidence().length }}<span class="metric-suffix"> files</span></div>
-    <div class="metric-foot"><span>Linked to {{ demo.audits().length }} audits</span><a routerLink="/evidence">Browse evidence →</a></div>
+    <div class="metric-foot"><span>Linked to {{ demo.audits().length }} audits</span><a *appHasPermission="permissions.EVIDENCE_VIEW" routerLink="/evidence">Browse evidence →</a></div>
   </article>
 </section>
 
@@ -89,8 +89,8 @@
   <article class="surface-card quick-actions">
     <div class="section-header"><div><h2>Quick actions</h2><p>Keep your audit moving</p></div></div>
     <div class="quick-action-list">
-      <a routerLink="/audits" [queryParams]="{ create: true }"><span class="quick-icon quick-icon-green">＋</span><span><strong>Start an audit</strong><small>Set up a new engagement</small></span><b>→</b></a>
-      <a routerLink="/evidence"><span class="quick-icon quick-icon-blue">▧</span><span><strong>Review evidence</strong><small>{{ demo.evidence().length }} sample records to explore</small></span><b>→</b></a>
+      <a *appHasPermission="permissions.AUDITS_CREATE" routerLink="/audits" [queryParams]="{ create: true }"><span class="quick-icon quick-icon-green">＋</span><span><strong>Start an audit</strong><small>Set up a new engagement</small></span><b>→</b></a>
+      <a *appHasPermission="permissions.EVIDENCE_VIEW" routerLink="/evidence"><span class="quick-icon quick-icon-blue">▧</span><span><strong>Review evidence</strong><small>{{ demo.evidence().length }} sample records to explore</small></span><b>→</b></a>
       <a routerLink="/copilot"><span class="quick-icon quick-icon-violet">✳</span><span><strong>Ask AI Copilot</strong><small>Explore simulated suggestions</small></span><b>→</b></a>
     </div>
   </article>

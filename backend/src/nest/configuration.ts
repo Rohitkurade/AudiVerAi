@@ -1,5 +1,13 @@
 import type { PoolOptions } from 'mysql2/promise';
 
+export const AUTH_CONFIGURATION = 'AUTH_CONFIGURATION';
+
+export interface AuthConfiguration {
+  csrfSecret: string;
+  sessionTtlHours: number;
+  secureCookies: boolean;
+}
+
 export function parsePort(value: string | undefined, defaultValue: number, name: string): number {
   const port = value === undefined ? defaultValue : Number(value);
 
@@ -8,6 +16,24 @@ export function parsePort(value: string | undefined, defaultValue: number, name:
   }
 
   return port;
+}
+
+export function getAuthConfiguration(): AuthConfiguration {
+  const csrfSecret = process.env.AUTH_CSRF_SECRET;
+  if (!csrfSecret || Buffer.byteLength(csrfSecret, 'utf8') < 32) {
+    throw new Error('AUTH_CSRF_SECRET must contain at least 32 bytes.');
+  }
+
+  const sessionTtlHours = Number(process.env.AUTH_SESSION_TTL_HOURS ?? 12);
+  if (!Number.isInteger(sessionTtlHours) || sessionTtlHours < 1 || sessionTtlHours > 720) {
+    throw new Error('AUTH_SESSION_TTL_HOURS must be an integer between 1 and 720.');
+  }
+
+  return {
+    csrfSecret,
+    sessionTtlHours,
+    secureCookies: process.env.NODE_ENV === 'production',
+  };
 }
 
 export function getCorsOrigin(): string {

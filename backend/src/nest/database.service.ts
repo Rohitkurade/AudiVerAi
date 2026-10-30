@@ -5,7 +5,7 @@ import { getDatabaseConfig } from './configuration';
 
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {
-  private readonly pool: Pool;
+  readonly pool: Pool;
 
   constructor() {
     this.pool = mysql.createPool(getDatabaseConfig());
